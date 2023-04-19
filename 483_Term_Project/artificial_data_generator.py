@@ -139,6 +139,12 @@ def create_artificial_data(subject_name, pronunciation_dictionary):
             # creates the path exports the artificial file to the directory
             artificial_storage_path = "Artificial Pronunciations/" + subject_name + "/" + word + ".wav"
             artificial_pronunciation.export(artificial_storage_path, format="wav")
+
+            # convert the audio to single channel
+            sound = AudioSegment.from_wav(artificial_storage_path)
+            sound = sound.set_channels(1)
+            sound.export(artificial_storage_path, format="wav")
+
         elif (result_format == "nn"):
             neural_storage_path = "NN Format/" + word + "/" 
             # checks if the folder/directory does not exist yet
@@ -155,6 +161,11 @@ def create_artificial_data(subject_name, pronunciation_dictionary):
 
             # exports the artificial file to the neural directory
             artificial_pronunciation.export(full_path, format="wav")
+
+            # convert to single channel
+            sound = AudioSegment.from_wav(full_path)
+            sound = sound.set_channels(1)
+            sound.export(full_path, format="wav")
         else:
             print("Invalid file format, please try again")
     return 
@@ -184,6 +195,10 @@ def get_pronunciation_dictionary(subject_name, phoneme_list):
         pronunciation_file_path = "Trimmed Recordings/" + subject_name + "/" + phoneme + ".wav"
         # gets the pronunciation as the form of an AudioSegment
         phonetic_pronunciation = AudioSegment.from_file(pronunciation_file_path, format='wav')
+        # normalize the decimal level
+        # decible_level = 60
+        # sound = AudioSegment.from_file(phonetic_pronunciation)
+        # applied_gain = sound - decible_level
         # maps the phoneme to the AudioSegment pronunciation
         pronunciation_dictionary[phoneme] = phonetic_pronunciation
 
