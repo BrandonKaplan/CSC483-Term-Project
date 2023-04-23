@@ -186,7 +186,7 @@ RETURNS:
     - pronunciation_dictionary: Dictionary containing the phonemes as keys and the AudioSegment
     of the subjects pronunciation of that phoneme
 '''
-def get_pronunciation_dictionary(subject_name, phoneme_list):
+def get_pronunciation_dictionary(subject_name, phoneme_list, norm):
     pronunciation_dictionary = {}
 
     # goes through each of the phoneme_list
@@ -195,12 +195,26 @@ def get_pronunciation_dictionary(subject_name, phoneme_list):
         pronunciation_file_path = "Trimmed Recordings/" + subject_name + "/" + phoneme + ".wav"
         # gets the pronunciation as the form of an AudioSegment
         phonetic_pronunciation = AudioSegment.from_file(pronunciation_file_path, format='wav')
+
         # normalize the decimal level
-        # decible_level = 60
-        # sound = AudioSegment.from_file(phonetic_pronunciation)
-        # applied_gain = sound - decible_level
-        # maps the phoneme to the AudioSegment pronunciation
-        pronunciation_dictionary[phoneme] = phonetic_pronunciation
+        if(norm == "True"):
+            target_decible_level = -20
+            current_volume = phonetic_pronunciation.dBFS
+            needed_gain = target_decible_level - current_volume
+            normalized_file_path = "Norm/" + subject_name + "/" + phoneme + ".wav"
+
+            if(current_volume < target_decible_level):
+                # apply the needed volume adjustment to the phoneme
+                new_volume = phonetic_pronunciation.apply_gain(needed_gain)
+                new_volume.export(normalized_file_path, format="wav")
+            else:
+                phonetic_pronunciation.export(normalized_file_path, format="wav")
+            
+            normalized_phoneme_pronunciation = AudioSegment.from_file(normalized_file_path)
+            pronunciation_dictionary[phoneme] = normalized_phoneme_pronunciation
+        else:
+            # maps the phoneme to the AudioSegment pronunciation
+            pronunciation_dictionary[phoneme] = phonetic_pronunciation
 
     return pronunciation_dictionary
 
@@ -232,11 +246,11 @@ def get_phoneme_list():
         
     return cleaned_list
 
-
 def main():
     phoneme_list = get_phoneme_list()
     subject_name = input("Enter the name of the person's recordings (Folder Name): \n")
-    pronunciation_dictionary = get_pronunciation_dictionary(subject_name, phoneme_list)
+    normalized = input("Normalize the phonemes volume? (True / False): \n")
+    pronunciation_dictionary = get_pronunciation_dictionary(subject_name, phoneme_list, normalized)
     create_artificial_data(subject_name, pronunciation_dictionary)
     
 
