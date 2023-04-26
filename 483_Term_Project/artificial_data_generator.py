@@ -112,7 +112,7 @@ PARAMETERS:
     type recording of the subjects phoneme
     - subject_name: String that is the name of the directory of the subjects recordings
 '''
-def create_artificial_data(subject_name, pronunciation_dictionary):
+def create_artificial_data(subject_name, pronunciation_dictionary, pitch_shift):
     # constants for this function
     WORD_INDEX = 0
     PHONEME_INDEX = 1
@@ -161,6 +161,36 @@ def create_artificial_data(subject_name, pronunciation_dictionary):
 
             # exports the artificial file to the neural directory
             artificial_pronunciation.export(full_path, format="wav")
+
+            # pitch shift the word up
+            if(pitch_shift == "True"):
+                filename = neural_storage_path + word + str(file_number) + ".wav"
+                out_path = neural_storage_path + word + str(file_number + 1) + ".wav"
+
+                sound = AudioSegment.from_file(filename, format="wav")
+                octaves = 0.25
+                new_sample_rate = int(sound.frame_rate * (2.0 ** octaves))
+                hipitch_sound = sound._spawn(sound.raw_data, overrides={'frame_rate': new_sample_rate})
+                hipitch_sound = hipitch_sound.set_frame_rate(4800)
+                hipitch_sound.export(out_path, format="wav")
+                sc = AudioSegment.from_file(out_path, format="wav")
+                sc = sc.set_channels(1)
+                sc.export(out_path, format="wav")
+            
+            # pitch shift the word down
+            if(pitch_shift == "True"):
+                filename = neural_storage_path + word + str(file_number) + ".wav"
+                out_path = neural_storage_path + word + str(file_number + 2) + ".wav"
+
+                sound = AudioSegment.from_file(filename, format="wav")
+                octaves = -0.25
+                new_sample_rate = int(sound.frame_rate * (2.0 ** octaves))
+                hipitch_sound = sound._spawn(sound.raw_data, overrides={'frame_rate': new_sample_rate})
+                hipitch_sound = hipitch_sound.set_frame_rate(4800)
+                hipitch_sound.export(out_path, format="wav")
+                sc = AudioSegment.from_file(out_path, format="wav")
+                sc = sc.set_channels(1)
+                sc.export(out_path, format="wav")
 
             # convert to single channel
             sound = AudioSegment.from_wav(full_path)
@@ -250,8 +280,10 @@ def main():
     phoneme_list = get_phoneme_list()
     subject_name = input("Enter the name of the person's recordings (Folder Name): \n")
     normalized = input("Normalize the phonemes volume? (True / False): \n")
+    pitch_shift = input("Pitch shift the words? (True / False) \n")
     pronunciation_dictionary = get_pronunciation_dictionary(subject_name, phoneme_list, normalized)
-    create_artificial_data(subject_name, pronunciation_dictionary)
+    create_artificial_data(subject_name, pronunciation_dictionary, pitch_shift)
     
 
 main()
+
