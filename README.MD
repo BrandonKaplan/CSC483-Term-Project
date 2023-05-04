@@ -9,3 +9,5 @@ recordings
 neural network scripts
 
 *TensorFlow* : Neural network models and training scripts
+
+*link_to_google_folder.txt* : A link to our projects Google folder containing all our data collection, graphs of data, project report, presentation slides, and some word prediction data
