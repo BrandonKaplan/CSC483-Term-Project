@@ -14,3 +14,6 @@ Neural network models and training scripts
 
 ### link_to_google_folder.txt : 
 A link to our projects Google folder containing all our data collection, graphs of data, project report, presentation slides, and some word prediction data
+
+### artificial_data_generator.py ### :
+A script to generate data for the neural network, with options for word normalization and pitch shifting
